@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri"
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Build and upload release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "Nexus API ${{ github.ref_name }}"
+          releaseBody: |
+            Primer lanzamiento público de **Nexus API**, un cliente HTTP de escritorio minimalista, libre y de código abierto.
+
+            ### Instalación
+            Descarga el instalador para tu sistema operativo y ábrelo. En macOS, si macOS te avisa que la app viene de un desarrollador sin verificar, haz clic derecho sobre la app y elige "Abrir".
+
+            ### Nuevo en esta versión
+            - Cliente HTTP con GET, POST, PUT, PATCH y DELETE
+            - Historial local privado (Dexie.js / IndexedDB)
+            - Headers, Params y Body (JSON) por pestañas
+            - Panel de respuesta con estado, tiempo y tamaño
+            - Peticiones vía Rust sin restricciones CORS
+          releaseDraft: false
+          prerelease: false

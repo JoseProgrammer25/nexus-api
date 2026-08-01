@@ -6,6 +6,18 @@
 
 ---
 
+## Descargas
+
+| Sistema operativo | Instalador |
+| ----------------- | ---------- |
+| macOS (Apple Silicon) | [Nexus API 0.1.0 (.dmg)](https://github.com/JoseProgrammer25/nexus-api/releases/latest) |
+| Windows | [Nexus API 0.1.0 (.msi)](https://github.com/JoseProgrammer25/nexus-api/releases/latest) |
+| Linux | [Nexus API 0.1.0 (.AppImage)](https://github.com/JoseProgrammer25/nexus-api/releases/latest) |
+
+Todos los instaladores se publican en la [página de releases](https://github.com/JoseProgrammer25/nexus-api/releases). No necesitas cuenta ni conexión para usarla: todo el historial vive en tu máquina.
+
+---
+
 ## Características
 
 - **Historial local** con Dexie.js (IndexedDB): cada petición exitosa se guarda automáticamente, sin sincronización en la nube.
@@ -46,7 +58,7 @@ Instala los siguientes componentes en orden:
 
 ```bash
 # 1. Clona el repositorio
-git clone https://github.com/tu-usuario/nexus-api.git
+git clone https://github.com/JoseProgrammer25/nexus-api.git
 cd nexus-api
 
 # 2. Instala las dependencias de JavaScript
@@ -83,7 +95,7 @@ Cada petición con respuesta (incluidos 4xx/5xx) se guarda automáticamente. Haz
 ### 4. Panel de respuesta
 Muestra el **código de estado** con su texto y color según el resultado (2xx verde, 3xx azul, 4xx/5xx rojo), el **tiempo de respuesta** en milisegundos y el **tamaño** del cuerpo. Cambia entre las vistas **Body** (JSON formateado) y **Headers** (cabeceras de respuesta) con los botones superiores.
 
-> **Nota sobre CORS**: la app usa la API `fetch` nativa del webview. Si pruebas APIs que no envían cabeceras CORS, la petición puede ser bloqueada por el navegador. Para peticiones sin restricciones CORS, integra el plugin oficial `@tauri-apps/plugin-http` y sustituye la llamada a `fetch` en `src/App.vue`.
+> **Sobre CORS**: las peticiones se ejecutan a través de Rust (plugin oficial `@tauri-apps/plugin-http`), por lo que **no hay restricciones CORS**: puedes probar cualquier API sin necesidad de que envíe cabeceras CORS.
 
 ## Estructura del proyecto
 
