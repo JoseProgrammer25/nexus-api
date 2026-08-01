@@ -13,6 +13,7 @@ import KeyValueTable from "./components/KeyValueTable.vue";
 import BodyEditor from "./components/BodyEditor.vue";
 import ResponsePanel from "./components/ResponsePanel.vue";
 import { buildUrl, parseUrl } from "./utils/url";
+import { fetch } from "@tauri-apps/plugin-http";
 
 const method = ref<HttpMethod>("GET");
 const url = ref("");
