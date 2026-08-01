@@ -1,0 +1,41 @@
+MIT License
+
+Copyright (c) 2026 Jose Antonio Becerra Morilla
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+Additional clause — Brand and Derivative Works
+
+The name "nexusAPI", its logo and its visual identity are owned by the
+copyright holder and are NOT covered by the MIT license above. Everyone is
+free to download, study, modify and improve the software, including using it
+as a base for their own personal, educational or internal projects.
+
+However, modified or derivative versions MUST NOT:
+
+1. Be distributed, published or sold under the "nexusAPI" name, logo or
+   branding without prior written permission from the copyright holder.
+2. Present themselves as the original nexusAPI project.
+
+Any modified version you share must clearly indicate that it is a modified
+version of the original project. This clause protects the original repository
+and its brand while keeping the code free and open for everyone to learn from
+and improve.
