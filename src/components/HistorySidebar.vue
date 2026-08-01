@@ -38,9 +38,10 @@ const filtered = computed(() => {
     class="flex h-full w-72 shrink-0 flex-col border-r border-[#1b2340] bg-[#0a0f1c]"
   >
     <div class="flex shrink-0 items-center justify-between px-4 py-3">
-      <h1 class="text-sm font-bold uppercase tracking-widest text-slate-300">
-        <span class="text-[#22d3ee]">nexus</span
-        ><span class="text-[#3b82f6]">API</span>
+      <h1 class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-300">
+        <img src="/nexus.svg" alt="Nexus API" class="h-7 w-7 rounded-md" />
+        <span><span class="text-[#22d3ee]">Nexus</span>
+        <span class="text-[#3b82f6]">API</span></span>
       </h1>
       <button
         @click="emit('clear')"

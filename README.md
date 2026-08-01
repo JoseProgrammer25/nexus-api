@@ -1,8 +1,8 @@
-# nexusAPI
+# Nexus API
 
 > Un cliente HTTP de escritorio minimalista, libre y de código abierto, construido con Tauri 2, Vue 3 y Dexie.js.
 
-**nexusAPI** (antes `nexus-API`) es una herramienta para desarrollar y probar APIs directamente desde tu escritorio, inspirada en la fluidez de las herramientas modernas de testing HTTP, pero con una identidad visual, una paleta de colores y una interfaz 100% propias. Rápida, ligera y sin registros de cuenta: todo el historial se guarda de forma local y privada.
+**Nexus API** (antes `nexus-API`) es una herramienta para desarrollar y probar APIs directamente desde tu escritorio, inspirada en la fluidez de las herramientas modernas de testing HTTP, pero con una identidad visual, una paleta de colores y una interfaz 100% propias. Rápida, ligera y sin registros de cuenta: todo el historial se guarda de forma local y privada.
 
 ---
 
@@ -105,7 +105,7 @@ nexus-api/
 
 ## Licencia
 
-Código abierto bajo la licencia **MIT** (ver [`LICENSE`](./LICENSE)). Eres libre de descargar, modificar y mejorar el proyecto para uso personal, educativo o interno. El nombre **nexusAPI**, su logo y su identidad visual son propiedad del autor y no pueden usarse para publicar o vender versiones modificadas sin permiso previo: las versiones derivadas deben indicar que son una modificación del proyecto original.
+Código abierto bajo la licencia **MIT** (ver [`LICENSE`](./LICENSE)). Eres libre de descargar, modificar y mejorar el proyecto para uso personal, educativo o interno. El nombre **Nexus API**, su logo y su identidad visual son propiedad del autor y no pueden usarse para publicar o vender versiones modificadas sin permiso previo: las versiones derivadas deben indicar que son una modificación del proyecto original.
 
 ---
 
