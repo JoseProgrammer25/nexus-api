@@ -4,6 +4,7 @@ import type { HistoryItem } from "../types";
 import {
   METHOD_BADGE,
   statusColor,
+  statusDot,
   statusText,
   timeAgo,
 } from "../utils/format";
@@ -34,19 +35,19 @@ const filtered = computed(() => {
 </script>
 
 <template>
-  <aside
-    class="flex h-full w-72 shrink-0 flex-col border-r border-[#1b2340] bg-[#0a0f1c]"
-  >
-    <div class="flex shrink-0 items-center justify-between px-4 py-3">
-      <h1 class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-300">
-        <img src="/nexus.svg" alt="Nexus API" class="h-7 w-7 rounded-md" />
-        <span><span class="text-[#22d3ee]">Nexus</span>
-        <span class="text-[#3b82f6]">API</span></span>
-      </h1>
+  <aside class="flex h-full w-72 shrink-0 flex-col border-r border-edge bg-surface">
+    <div class="flex shrink-0 items-center gap-2.5 px-4 pb-3 pt-4">
+      <img src="/nexus.svg" alt="Nexus API" class="h-6 w-6 shrink-0" />
+      <span class="text-sm font-semibold tracking-tight text-ink">Nexus</span>
+      <span
+        class="rounded border border-edge px-1 py-px text-[9px] font-semibold uppercase tracking-widest text-ink-3"
+      >
+        API
+      </span>
       <button
         @click="emit('clear')"
         title="Vaciar historial"
-        class="rounded-md p-1.5 text-slate-500 transition hover:bg-rose-500/10 hover:text-rose-400"
+        class="ml-auto cursor-pointer rounded-md p-1.5 text-ink-3 transition hover:bg-rose-500/10 hover:text-rose-400"
       >
         <svg
           class="h-4 w-4"
@@ -69,7 +70,7 @@ const filtered = computed(() => {
     <div class="shrink-0 px-3 pb-3">
       <div class="relative">
         <svg
-          class="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-600"
+          class="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-3"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -83,15 +84,15 @@ const filtered = computed(() => {
         <input
           v-model="query"
           type="text"
-          placeholder="Buscar en el historial..."
+          placeholder="Buscar..."
           spellcheck="false"
-          class="w-full rounded-lg border border-[#232c4d] bg-[#0d1322] py-1.5 pl-8 pr-8 text-xs text-slate-200 placeholder-slate-600 outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/30"
+          class="w-full rounded-md border border-edge bg-surface-2 py-1.5 pl-8 pr-7 text-xs text-ink placeholder-ink-3 outline-none transition focus:border-accent-strong/60 focus:ring-2 focus:ring-accent/20"
         />
         <button
           v-if="query"
           @click="query = ''"
           title="Limpiar búsqueda"
-          class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-500 transition hover:text-slate-300"
+          class="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded p-0.5 text-ink-3 transition hover:text-ink-2"
         >
           <svg
             class="h-3 w-3"
@@ -109,19 +110,19 @@ const filtered = computed(() => {
       </div>
     </div>
 
-    <div
-      class="flex shrink-0 items-center justify-between border-b border-[#1b2340] px-4 py-2"
-    >
-      <span class="text-xs uppercase tracking-wide text-slate-500">Historial</span>
-      <span class="rounded-full bg-[#131a2e] px-2 py-0.5 text-[10px] tabular-nums text-slate-400">
+    <div class="flex shrink-0 items-center justify-between border-y border-edge px-4 py-2">
+      <span class="text-[11px] font-medium uppercase tracking-wider text-ink-3">
+        Historial
+      </span>
+      <span class="text-[11px] tabular-nums text-ink-3">
         {{ filtered.length }}
       </span>
     </div>
 
-    <div class="min-h-0 flex-1 overflow-y-auto">
+    <div class="min-h-0 flex-1 overflow-y-auto py-1">
       <p
         v-if="filtered.length === 0"
-        class="px-4 py-8 text-center text-xs text-slate-600"
+        class="px-4 py-8 text-center text-xs text-ink-3"
       >
         {{ query ? "Sin coincidencias." : "Sin peticiones todavía." }}
       </p>
@@ -130,20 +131,28 @@ const filtered = computed(() => {
         v-for="item in filtered"
         :key="item.id"
         @click="emit('select', item.id!)"
-        class="group block w-full cursor-pointer border-b border-[#121828] px-4 py-3 transition hover:bg-[#10172a]"
-        :class="{ 'bg-[#10172a]': item.id === activeId }"
+        class="group relative cursor-pointer px-4 py-2.5 transition hover:bg-surface-2/60"
+        :class="{ 'bg-surface-2/70': item.id === activeId }"
       >
+        <span
+          v-if="item.id === activeId"
+          class="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-accent"
+        ></span>
+
         <div class="flex items-center gap-2">
           <span
-            class="shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-bold"
+            class="w-12 shrink-0 rounded px-1 py-0.5 text-center font-mono text-[10px] font-semibold"
             :class="METHOD_BADGE[item.method]"
           >
             {{ item.method }}
           </span>
+          <span class="ml-auto text-[10px] tabular-nums text-ink-3">
+            {{ timeAgo(item.createdAt) }}
+          </span>
           <button
             @click.stop="emit('remove', item.id!)"
             title="Eliminar entrada"
-            class="ml-auto rounded-md p-1 text-slate-600 opacity-0 transition group-hover:opacity-100 hover:bg-rose-500/10 hover:text-rose-400"
+            class="cursor-pointer rounded p-1 text-ink-3 opacity-0 transition group-hover:opacity-100 hover:bg-rose-500/10 hover:text-rose-400"
           >
             <svg
               class="h-3.5 w-3.5"
@@ -160,16 +169,20 @@ const filtered = computed(() => {
             </svg>
           </button>
         </div>
-        <div class="mt-1.5 truncate font-mono text-xs text-slate-300">
+
+        <div class="mt-1 truncate font-mono text-xs text-ink-2">
           {{ item.url }}
         </div>
-        <div class="mt-1 flex items-center justify-between gap-2">
-          <span class="text-[10px] text-slate-600">
-            {{ timeAgo(item.createdAt) }}
-          </span>
+
+        <div class="mt-1 flex items-center gap-1.5">
           <span
             v-if="item.responseStatus !== undefined"
-            class="rounded px-1.5 py-0.5 text-[10px] font-semibold"
+            class="h-1.5 w-1.5 rounded-full"
+            :class="statusDot(item.responseStatus)"
+          ></span>
+          <span
+            v-if="item.responseStatus !== undefined"
+            class="font-mono text-[10px] font-medium"
             :class="statusColor(item.responseStatus)"
           >
             {{ statusText(item.responseStatus) }}
