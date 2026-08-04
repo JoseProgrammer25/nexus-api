@@ -1,11 +1,21 @@
 import type { HttpMethod } from "../types";
 
+export const METHODS: HttpMethod[] = [
+  "GET",
+  "POST",
+  "PUT",
+  "PATCH",
+  "DELETE",
+  "QUERY",
+];
+
 export const METHOD_BADGE: Record<HttpMethod, string> = {
-  GET: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-  POST: "bg-amber-500/15 text-amber-400 border-amber-500/30",
-  PUT: "bg-sky-500/15 text-sky-400 border-sky-500/30",
-  PATCH: "bg-violet-500/15 text-violet-400 border-violet-500/30",
-  DELETE: "bg-rose-500/15 text-rose-400 border-rose-500/30",
+  GET: "bg-emerald-400/10 text-emerald-300",
+  POST: "bg-amber-400/10 text-amber-300",
+  PUT: "bg-sky-400/10 text-sky-300",
+  PATCH: "bg-violet-400/10 text-violet-300",
+  DELETE: "bg-rose-400/10 text-rose-300",
+  QUERY: "bg-teal-400/10 text-teal-300",
 };
 
 export const METHOD_TEXT: Record<HttpMethod, string> = {
@@ -14,6 +24,16 @@ export const METHOD_TEXT: Record<HttpMethod, string> = {
   PUT: "text-sky-400",
   PATCH: "text-violet-400",
   DELETE: "text-rose-400",
+  QUERY: "text-teal-400",
+};
+
+export const METHOD_DOT: Record<HttpMethod, string> = {
+  GET: "bg-emerald-400",
+  POST: "bg-amber-400",
+  PUT: "bg-sky-400",
+  PATCH: "bg-violet-400",
+  DELETE: "bg-rose-400",
+  QUERY: "bg-teal-400",
 };
 
 const STATUS_TEXT: Record<number, string> = {
@@ -42,10 +62,17 @@ const STATUS_TEXT: Record<number, string> = {
 };
 
 export function statusColor(status?: number): string {
-  if (status === undefined) return "bg-slate-500/15 text-slate-400 border-slate-500/30";
-  if (status < 300) return "bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
-  if (status < 400) return "bg-sky-500/15 text-sky-400 border-sky-500/30";
-  return "bg-rose-500/15 text-rose-400 border-rose-500/30";
+  if (status === undefined) return "text-ink-3";
+  if (status < 300) return "text-emerald-400";
+  if (status < 400) return "text-sky-400";
+  return "text-rose-400";
+}
+
+export function statusDot(status?: number): string {
+  if (status === undefined) return "bg-ink-3";
+  if (status < 300) return "bg-emerald-400";
+  if (status < 400) return "bg-sky-400";
+  return "bg-rose-400";
 }
 
 export function statusText(status?: number): string {
@@ -79,4 +106,47 @@ export function timeAgo(timestamp: number): string {
   const days = Math.floor(hours / 24);
   if (days < 30) return `hace ${days} d`;
   return new Date(timestamp).toLocaleDateString();
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+const JSON_TOKEN =
+  /("(?:\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(?:\s*:)?|\b(?:true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g;
+
+export function highlightJson(raw: string): string {
+  if (!raw) return "";
+  const pretty = prettyPrint(raw);
+  if (pretty === raw) return escapeHtml(raw);
+
+  let html = "";
+  let last = 0;
+  let match: RegExpExecArray | null;
+  JSON_TOKEN.lastIndex = 0;
+
+  while ((match = JSON_TOKEN.exec(pretty)) !== null) {
+    html += escapeHtml(pretty.slice(last, match.index));
+    const token = match[0];
+
+    if (token.endsWith(":")) {
+      html += `<span class="text-sky-300">${escapeHtml(token.slice(0, -1))}</span><span class="text-ink-3">:</span>`;
+    } else if (token.startsWith('"')) {
+      html += `<span class="text-emerald-300">${escapeHtml(token)}</span>`;
+    } else if (token === "true" || token === "false") {
+      html += `<span class="text-violet-300">${escapeHtml(token)}</span>`;
+    } else if (token === "null") {
+      html += `<span class="text-ink-3">${escapeHtml(token)}</span>`;
+    } else {
+      html += `<span class="text-amber-300">${escapeHtml(token)}</span>`;
+    }
+
+    last = match.index + token.length;
+  }
+
+  html += escapeHtml(pretty.slice(last));
+  return html;
 }

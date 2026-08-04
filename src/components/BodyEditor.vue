@@ -32,43 +32,57 @@ function formatJson() {
 </script>
 
 <template>
-  <div class="flex h-full flex-col gap-2">
-    <div class="flex shrink-0 items-center gap-2">
-      <span
-        v-if="jsonState === 'valid'"
-        class="flex items-center gap-1.5 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] font-medium text-emerald-400"
-      >
-        <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-        JSON válido
-      </span>
-      <span
-        v-else-if="jsonState === 'invalid'"
-        class="flex items-center gap-1.5 rounded-md border border-rose-500/30 bg-rose-500/10 px-2 py-1 text-[10px] font-medium text-rose-400"
-      >
-        <span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
-        JSON inválido
-      </span>
-      <span
-        v-else
-        class="text-[10px] uppercase tracking-wide text-slate-600"
-      >
-        Texto / JSON
+  <div class="flex h-full min-h-0 flex-col p-4">
+    <div class="mb-2 flex shrink-0 items-center gap-2 px-1">
+      <span class="flex items-center gap-1.5 text-xs">
+        <span
+          class="h-1.5 w-1.5 rounded-full"
+          :class="
+            jsonState === 'valid'
+              ? 'bg-emerald-400'
+              : jsonState === 'invalid'
+                ? 'bg-rose-400'
+                : 'bg-ink-3'
+          "
+        ></span>
+        <span
+          class="font-medium"
+          :class="
+            jsonState === 'valid'
+              ? 'text-emerald-400'
+              : jsonState === 'invalid'
+                ? 'text-rose-400'
+                : 'text-ink-3'
+          "
+        >
+          {{
+            jsonState === "valid"
+              ? "JSON válido"
+              : jsonState === "invalid"
+                ? "JSON inválido"
+                : "Texto / JSON"
+          }}
+        </span>
       </span>
 
       <button
         @click="formatJson"
-        class="ml-auto rounded-md border border-[#2a3351] px-2.5 py-1 text-[10px] font-medium text-slate-400 transition hover:border-[#3b82f6] hover:text-[#3b82f6]"
+        class="ml-auto cursor-pointer rounded-md px-2 py-1 text-xs text-ink-3 transition hover:bg-surface-2 hover:text-accent"
       >
         Formatear JSON
       </button>
     </div>
 
-    <textarea
-      :value="props.text"
-      @input="emit('update:text', ($event.target as HTMLTextAreaElement).value)"
-      placeholder='{\n  "clave": "valor"\n}'
-      spellcheck="false"
-      class="h-full min-h-0 w-full resize-none rounded-lg border border-[#232c4d] bg-[#0d1322] p-3 font-mono text-xs leading-relaxed text-slate-200 placeholder-slate-600 outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/30"
-    ></textarea>
+    <div
+      class="min-h-0 flex-1 overflow-hidden rounded-lg border border-edge bg-surface-2 transition focus-within:border-accent-strong/60 focus-within:ring-2 focus-within:ring-accent/20"
+    >
+      <textarea
+        :value="props.text"
+        @input="emit('update:text', ($event.target as HTMLTextAreaElement).value)"
+        placeholder='{\n  "clave": "valor"\n}'
+        spellcheck="false"
+        class="h-full w-full resize-none bg-transparent p-3 font-mono text-xs leading-relaxed text-ink placeholder-ink-3 outline-none"
+      ></textarea>
+    </div>
   </div>
 </template>

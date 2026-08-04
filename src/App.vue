@@ -22,6 +22,12 @@ const params = ref<RequestParam[]>([{ key: "", value: "", active: true }]);
 const body = ref("");
 const activeTab = ref<"headers" | "params" | "body">("headers");
 
+const tabs = [
+  { value: "headers", label: "Headers" },
+  { value: "params", label: "Params" },
+  { value: "body", label: "Body" },
+] as const;
+
 const loading = ref(false);
 const error = ref("");
 
@@ -148,9 +154,7 @@ async function saveToHistory(targetUrl: string) {
 </script>
 
 <template>
-  <div
-    class="flex h-full min-h-0 bg-[radial-gradient(1200px_600px_at_85%_-10%,rgba(59,130,246,0.12),transparent)] bg-[#0b0f19] text-slate-200"
-  >
+  <div class="flex h-full min-h-0 bg-base text-ink">
     <HistorySidebar
       :history="history"
       :active-id="activeHistoryId"
@@ -167,31 +171,33 @@ async function saveToHistory(targetUrl: string) {
         @send="sendRequest"
       />
 
-      <div
-        class="flex shrink-0 items-center gap-1 border-b border-[#1b2340] bg-[#0d1322] px-4 pt-2"
-      >
+      <div class="flex shrink-0 items-center gap-1 border-b border-edge px-3">
         <button
-          v-for="tab in ['headers', 'params', 'body'] as const"
-          :key="tab"
-          @click="activeTab = tab"
-          class="rounded-t-lg px-4 py-2 text-sm font-medium transition"
+          v-for="tab in tabs"
+          :key="tab.value"
+          @click="activeTab = tab.value"
+          class="relative -mb-px cursor-pointer px-3 py-2.5 text-[13px] font-medium transition"
           :class="
-            activeTab === tab
-              ? 'border border-b-0 border-[#1b2340] bg-[#0b0f19] text-slate-100'
-              : 'text-slate-500 hover:text-slate-300'
+            activeTab === tab.value
+              ? 'text-ink'
+              : 'text-ink-3 hover:text-ink-2'
           "
         >
-          {{ tab === "headers" ? "Headers" : tab === "params" ? "Params" : "Body" }}
+          {{ tab.label }}
+          <span
+            v-if="activeTab === tab.value"
+            class="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-accent"
+          ></span>
         </button>
       </div>
 
-      <div class="min-h-0 flex-1 overflow-y-auto">
+      <div class="min-h-0 flex-1">
         <KeyValueTable
           v-if="activeTab === 'headers'"
           v-model:rows="headers"
           key-placeholder="Content-Type"
           value-placeholder="application/json"
-          add-label="+ Agregar header"
+          add-label="Agregar header"
         />
 
         <KeyValueTable
@@ -199,17 +205,15 @@ async function saveToHistory(targetUrl: string) {
           v-model:rows="params"
           key-placeholder="page"
           value-placeholder="1"
-          add-label="+ Agregar parámetro"
+          add-label="Agregar parámetro"
         />
 
-        <div v-else class="h-full p-4">
-          <BodyEditor v-model:text="body" />
-        </div>
+        <BodyEditor v-else v-model:text="body" />
       </div>
 
       <p
         v-if="error"
-        class="shrink-0 border-t border-[#1b2340] bg-rose-500/10 px-4 py-2 font-mono text-xs text-rose-400"
+        class="shrink-0 border-t border-edge bg-rose-500/10 px-4 py-2 font-mono text-xs text-rose-400"
       >
         {{ error }}
       </p>
