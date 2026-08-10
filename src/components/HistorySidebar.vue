@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import type { HistoryItem } from "../types";
+import { computed, nextTick, ref } from "vue";
+import type { Collection, HistoryItem } from "../types";
 import {
   METHOD_BADGE,
   statusColor,
@@ -11,6 +11,7 @@ import {
 
 const props = defineProps<{
   history: HistoryItem[];
+  collections: Collection[];
   activeId?: number;
 }>();
 
@@ -18,9 +19,13 @@ const emit = defineEmits<{
   select: [id: number];
   remove: [id: number];
   clear: [];
+  "select-collection": [collection: Collection];
+  "remove-collection": [id: number];
+  "rename-collection": [id: number, name: string];
 }>();
 
 const query = ref("");
+const view = ref<"history" | "saved">("history");
 
 const filtered = computed(() => {
   const q = query.value.trim().toLowerCase();
@@ -32,6 +37,22 @@ const filtered = computed(() => {
       String(item.responseStatus ?? "").includes(q),
   );
 });
+
+const editingId = ref<number | null>(null);
+const editingName = ref("");
+
+function startRename(c: Collection) {
+  editingId.value = c.id ?? null;
+  editingName.value = c.name;
+  nextTick();
+}
+
+function commitRename() {
+  if (editingId.value !== null) {
+    emit("rename-collection", editingId.value, editingName.value.trim() || "Colección");
+  }
+  editingId.value = null;
+}
 </script>
 
 <template>
@@ -68,6 +89,33 @@ const filtered = computed(() => {
     </div>
 
     <div class="shrink-0 px-3 pb-3">
+      <div class="flex items-center gap-0.5 rounded-lg bg-surface-2 p-0.5">
+        <button
+          @click="view = 'history'"
+          class="flex-1 cursor-pointer rounded-md px-2 py-1 text-xs font-medium transition"
+          :class="
+            view === 'history'
+              ? 'bg-surface-3 text-ink'
+              : 'text-ink-3 hover:text-ink-2'
+          "
+        >
+          Historial
+        </button>
+        <button
+          @click="view = 'saved'"
+          class="flex-1 cursor-pointer rounded-md px-2 py-1 text-xs font-medium transition"
+          :class="
+            view === 'saved'
+              ? 'bg-surface-3 text-ink'
+              : 'text-ink-3 hover:text-ink-2'
+          "
+        >
+          Guardadas
+        </button>
+      </div>
+    </div>
+
+    <div v-if="view === 'history'" class="shrink-0 px-3 pb-3">
       <div class="relative">
         <svg
           class="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-3"
@@ -112,83 +160,149 @@ const filtered = computed(() => {
 
     <div class="flex shrink-0 items-center justify-between border-y border-edge px-4 py-2">
       <span class="text-[11px] font-medium uppercase tracking-wider text-ink-3">
-        Historial
+        {{ view === "history" ? "Historial" : "Colecciones" }}
       </span>
       <span class="text-[11px] tabular-nums text-ink-3">
-        {{ filtered.length }}
+        {{ view === "history" ? filtered.length : props.collections.length }}
       </span>
     </div>
 
     <div class="min-h-0 flex-1 overflow-y-auto py-1">
-      <p
-        v-if="filtered.length === 0"
-        class="px-4 py-8 text-center text-xs text-ink-3"
-      >
-        {{ query ? "Sin coincidencias." : "Sin peticiones todavía." }}
-      </p>
+      <template v-if="view === 'history'">
+        <p
+          v-if="filtered.length === 0"
+          class="px-4 py-8 text-center text-xs text-ink-3"
+        >
+          {{ query ? "Sin coincidencias." : "Sin peticiones todavía." }}
+        </p>
 
-      <div
-        v-for="item in filtered"
-        :key="item.id"
-        @click="emit('select', item.id!)"
-        class="group relative cursor-pointer px-4 py-2.5 transition hover:bg-surface-2/60"
-        :class="{ 'bg-surface-2/70': item.id === activeId }"
-      >
-        <span
-          v-if="item.id === activeId"
-          class="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-accent"
-        ></span>
-
-        <div class="flex items-center gap-2">
+        <div
+          v-for="item in filtered"
+          :key="item.id"
+          @click="emit('select', item.id!)"
+          class="group relative cursor-pointer px-4 py-2.5 transition hover:bg-surface-2/60"
+          :class="{ 'bg-surface-2/70': item.id === activeId }"
+        >
           <span
-            class="w-12 shrink-0 rounded px-1 py-0.5 text-center font-mono text-[10px] font-semibold"
-            :class="METHOD_BADGE[item.method]"
-          >
-            {{ item.method }}
-          </span>
-          <span class="ml-auto text-[10px] tabular-nums text-ink-3">
-            {{ timeAgo(item.createdAt) }}
-          </span>
-          <button
-            @click.stop="emit('remove', item.id!)"
-            title="Eliminar entrada"
-            class="cursor-pointer rounded p-1 text-ink-3 opacity-0 transition group-hover:opacity-100 hover:bg-rose-500/10 hover:text-rose-400"
-          >
-            <svg
-              class="h-3.5 w-3.5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M3 6h18" />
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-            </svg>
-          </button>
-        </div>
-
-        <div class="mt-1 truncate font-mono text-xs text-ink-2">
-          {{ item.url }}
-        </div>
-
-        <div class="mt-1 flex items-center gap-1.5">
-          <span
-            v-if="item.responseStatus !== undefined"
-            class="h-1.5 w-1.5 rounded-full"
-            :class="statusDot(item.responseStatus)"
+            v-if="item.id === activeId"
+            class="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-accent"
           ></span>
-          <span
-            v-if="item.responseStatus !== undefined"
-            class="font-mono text-[10px] font-medium"
-            :class="statusColor(item.responseStatus)"
-          >
-            {{ statusText(item.responseStatus) }}
-          </span>
+
+          <div class="flex items-center gap-2">
+            <span
+              class="w-12 shrink-0 rounded px-1 py-0.5 text-center font-mono text-[10px] font-semibold"
+              :class="METHOD_BADGE[item.method]"
+            >
+              {{ item.method }}
+            </span>
+            <span class="ml-auto text-[10px] tabular-nums text-ink-3">
+              {{ timeAgo(item.createdAt) }}
+            </span>
+            <button
+              @click.stop="emit('remove', item.id!)"
+              title="Eliminar entrada"
+              class="cursor-pointer rounded p-1 text-ink-3 opacity-0 transition group-hover:opacity-100 hover:bg-rose-500/10 hover:text-rose-400"
+            >
+              <svg
+                class="h-3.5 w-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 6h18" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="mt-1 truncate font-mono text-xs text-ink-2">
+            {{ item.url }}
+          </div>
+
+          <div class="mt-1 flex items-center gap-1.5">
+            <span
+              v-if="item.responseStatus !== undefined"
+              class="h-1.5 w-1.5 rounded-full"
+              :class="statusDot(item.responseStatus)"
+            ></span>
+            <span
+              v-if="item.responseStatus !== undefined"
+              class="font-mono text-[10px] font-medium"
+              :class="statusColor(item.responseStatus)"
+            >
+              {{ statusText(item.responseStatus) }}
+            </span>
+          </div>
         </div>
-      </div>
+      </template>
+
+      <template v-else>
+        <p
+          v-if="props.collections.length === 0"
+          class="px-4 py-8 text-center text-xs text-ink-3"
+        >
+          Guarda peticiones reutilizables con el botón
+          <span class="text-ink-2">★</span> de la barra superior.
+        </p>
+
+        <div
+          v-for="c in props.collections"
+          :key="c.id"
+          @click="emit('select-collection', c)"
+          @dblclick="startRename(c)"
+          class="group relative cursor-pointer px-4 py-2.5 transition hover:bg-surface-2/60"
+        >
+          <div class="flex items-center gap-2">
+            <span
+              class="w-12 shrink-0 rounded px-1 py-0.5 text-center font-mono text-[10px] font-semibold"
+              :class="METHOD_BADGE[c.method]"
+            >
+              {{ c.method }}
+            </span>
+            <input
+              v-if="editingId === c.id"
+              v-model="editingName"
+              @click.stop
+              @keydown.enter="commitRename"
+              @keydown.esc="editingId = null"
+              @blur="commitRename"
+              type="text"
+              spellcheck="false"
+              class="w-full bg-transparent text-xs font-medium text-ink outline-none"
+            />
+            <span v-else class="min-w-0 flex-1 truncate text-xs font-medium text-ink">
+              {{ c.name }}
+            </span>
+            <button
+              @click.stop="emit('remove-collection', c.id!)"
+              title="Eliminar colección"
+              class="cursor-pointer rounded p-1 text-ink-3 opacity-0 transition group-hover:opacity-100 hover:bg-rose-500/10 hover:text-rose-400"
+            >
+              <svg
+                class="h-3.5 w-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 6h18" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="mt-1 truncate font-mono text-xs text-ink-2">
+            {{ c.url }}
+          </div>
+        </div>
+      </template>
     </div>
   </aside>
 </template>

@@ -1,4 +1,9 @@
 import type { RequestParam } from "../types";
+import { uid } from "./format";
+
+function rawParam(key: string, value: string): RequestParam {
+  return { uid: uid(), key, value, active: true };
+}
 
 export function buildUrl(base: string, params: RequestParam[]): string {
   const active = params.filter((p) => p.active && p.key.trim() !== "");
@@ -14,15 +19,12 @@ export function parseUrl(
 ): { base: string; params: RequestParam[] } {
   const questionIndex = raw.indexOf("?");
   if (questionIndex === -1) {
-    return { base: raw, params: [{ key: "", value: "", active: true }] };
+    return { base: raw, params: [rawParam("", "")] };
   }
   const base = raw.slice(0, questionIndex);
   const query = raw.slice(questionIndex + 1);
   const search = new URLSearchParams(query);
   const params: RequestParam[] = [];
-  search.forEach((value, key) => params.push({ key, value, active: true }));
-  return {
-    base,
-    params: params.length > 0 ? params : [{ key: "", value: "", active: true }],
-  };
+  search.forEach((value, key) => params.push(rawParam(key, value)));
+  return { base, params: params.length > 0 ? params : [rawParam("", "")] };
 }

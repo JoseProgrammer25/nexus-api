@@ -1,4 +1,4 @@
-import type { HttpMethod } from "../types";
+import type { HttpMethod, KeyValue } from "../types";
 
 export const METHODS: HttpMethod[] = [
   "GET",
@@ -6,7 +6,8 @@ export const METHODS: HttpMethod[] = [
   "PUT",
   "PATCH",
   "DELETE",
-  "QUERY",
+  "HEAD",
+  "OPTIONS",
 ];
 
 export const METHOD_BADGE: Record<HttpMethod, string> = {
@@ -15,7 +16,8 @@ export const METHOD_BADGE: Record<HttpMethod, string> = {
   PUT: "bg-sky-400/10 text-sky-300",
   PATCH: "bg-violet-400/10 text-violet-300",
   DELETE: "bg-rose-400/10 text-rose-300",
-  QUERY: "bg-teal-400/10 text-teal-300",
+  HEAD: "bg-teal-400/10 text-teal-300",
+  OPTIONS: "bg-fuchsia-400/10 text-fuchsia-300",
 };
 
 export const METHOD_TEXT: Record<HttpMethod, string> = {
@@ -24,7 +26,8 @@ export const METHOD_TEXT: Record<HttpMethod, string> = {
   PUT: "text-sky-400",
   PATCH: "text-violet-400",
   DELETE: "text-rose-400",
-  QUERY: "text-teal-400",
+  HEAD: "text-teal-400",
+  OPTIONS: "text-fuchsia-400",
 };
 
 export const METHOD_DOT: Record<HttpMethod, string> = {
@@ -33,10 +36,31 @@ export const METHOD_DOT: Record<HttpMethod, string> = {
   PUT: "bg-sky-400",
   PATCH: "bg-violet-400",
   DELETE: "bg-rose-400",
-  QUERY: "bg-teal-400",
+  HEAD: "bg-teal-400",
+  OPTIONS: "bg-fuchsia-400",
 };
 
-const STATUS_TEXT: Record<number, string> = {
+export function supportsBody(method: HttpMethod): boolean {
+  return method !== "GET" && method !== "HEAD";
+}
+
+export function uid(): string {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID();
+  return `uid-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+export function newKeyValue(): KeyValue {
+  return { uid: uid(), key: "", value: "", active: true };
+}
+
+export function ensureUids<T extends { uid?: string }>(
+  rows: T[],
+): (T & { uid: string })[] {
+  return rows.map((row) => ({ ...row, uid: row.uid ?? uid() }));
+}
+
+export const STATUS_TEXT: Record<number, string> = {
   100: "Continue",
   101: "Switching Protocols",
   200: "OK",
@@ -118,8 +142,14 @@ function escapeHtml(value: string): string {
 const JSON_TOKEN =
   /("(?:\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(?:\s*:)?|\b(?:true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g;
 
-export function highlightJson(raw: string): string {
+export const HIGHLIGHT_LIMIT = 256 * 1024;
+
+export function highlightJson(
+  raw: string,
+  limit: number = HIGHLIGHT_LIMIT,
+): string {
   if (!raw) return "";
+  if (raw.length > limit) return escapeHtml(raw);
   const pretty = prettyPrint(raw);
   if (pretty === raw) return escapeHtml(raw);
 

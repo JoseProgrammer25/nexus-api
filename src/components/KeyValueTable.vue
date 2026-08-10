@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { KeyValue } from "../types";
+import { newKeyValue } from "../utils/format";
 
 const props = defineProps<{
   rows: KeyValue[];
@@ -27,7 +28,7 @@ function removeRow(index: number) {
 }
 
 function addRow() {
-  emit("update:rows", [...props.rows, { key: "", value: "", active: true }]);
+  emit("update:rows", [...props.rows, newKeyValue()]);
 }
 </script>
 
@@ -48,7 +49,7 @@ function addRow() {
         <tbody class="divide-y divide-edge/60">
           <tr
             v-for="(row, i) in props.rows"
-            :key="i"
+            :key="row.uid"
             class="group transition hover:bg-surface-2/50"
             :class="{ 'opacity-40': !row.active }"
           >

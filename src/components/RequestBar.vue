@@ -12,7 +12,18 @@ const emit = defineEmits<{
   "update:method": [value: HttpMethod];
   "update:url": [value: string];
   send: [];
+  cancel: [];
+  save: [];
 }>();
+
+function clearUrl() {
+  emit("update:url", "");
+}
+
+function onPrimary() {
+  if (props.loading) emit("cancel");
+  else emit("send");
+}
 </script>
 
 <template>
@@ -83,49 +94,83 @@ const emit = defineEmits<{
           autocomplete="off"
           class="h-full w-full min-w-0 bg-transparent font-mono text-[13px] text-ink placeholder-ink-3 outline-none"
         />
-      </div>
-
-      <button
-        @click="emit('send')"
-        :disabled="props.loading"
-        title="Enviar (Cmd/Ctrl + Enter)"
-        class="m-1.5 flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-md bg-accent-strong px-3 text-[13px] font-medium text-white transition hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        <svg
-          v-if="props.loading"
-          class="h-3.5 w-3.5 animate-spin"
-          viewBox="0 0 24 24"
-          fill="none"
+        <button
+          v-if="props.url"
+          @click="clearUrl"
+          title="Limpiar URL"
+          class="shrink-0 cursor-pointer rounded p-0.5 text-ink-3 transition hover:bg-surface-2 hover:text-ink"
         >
-          <circle
-            class="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
+          <svg
+            class="h-3.5 w-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
             stroke="currentColor"
-            stroke-width="4"
-          />
-          <path
-            class="opacity-90"
-            fill="currentColor"
-            d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z"
-          />
-        </svg>
-        <svg
-          v-else
-          class="h-3.5 w-3.5"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="m22 2-7 20-4-9-9-4Z" />
-          <path d="M22 2 11 13" />
-        </svg>
-        <span>{{ props.loading ? "Enviando" : "Enviar" }}</span>
-      </button>
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+      </div>
     </div>
+
+    <button
+      @click="emit('save')"
+      :disabled="props.loading"
+      title="Guardar en colecciones"
+      class="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-edge bg-surface-2 text-ink-3 transition hover:border-accent-strong/50 hover:text-accent disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      <svg
+        class="h-4 w-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
+      </svg>
+    </button>
+
+    <button
+      @click="onPrimary"
+      :title="loading ? 'Cancelar (Esc)' : 'Enviar (Cmd/Ctrl + Enter)'"
+      class="flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-lg px-3.5 text-[13px] font-medium transition"
+      :class="
+        loading
+          ? 'bg-rose-500/15 text-rose-300 hover:bg-rose-500/25'
+          : 'bg-accent-strong text-white hover:bg-accent'
+      "
+    >
+      <svg
+        v-if="loading"
+        class="h-3.5 w-3.5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M5 12h14" />
+      </svg>
+      <svg
+        v-else
+        class="h-3.5 w-3.5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m22 2-7 20-4-9-9-4Z" />
+        <path d="M22 2 11 13" />
+      </svg>
+      <span>{{ loading ? "Cancelar" : "Enviar" }}</span>
+    </button>
   </div>
 </template>
