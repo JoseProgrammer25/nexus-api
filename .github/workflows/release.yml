@@ -53,16 +53,21 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: "Nexus API ${{ github.ref_name }}"
           releaseBody: |
-            Primer lanzamiento público de **Nexus API**, un cliente HTTP de escritorio minimalista, libre y de código abierto.
+            **Nexus API** es un cliente HTTP de escritorio minimalista, libre y de código abierto, construido con Tauri 2, Vue 3 y Dexie.js.
 
             ### Instalación
             Descarga el instalador para tu sistema operativo y ábrelo. En macOS, si macOS te avisa que la app viene de un desarrollador sin verificar, haz clic derecho sobre la app y elige "Abrir".
 
             ### Nuevo en esta versión
-            - Cliente HTTP con GET, POST, PUT, PATCH y DELETE
-            - Historial local privado (Dexie.js / IndexedDB)
-            - Headers, Params y Body (JSON) por pestañas
-            - Panel de respuesta con estado, tiempo y tamaño
-            - Peticiones vía Rust sin restricciones CORS
+            - Pestañas múltiples de peticiones (Cmd/Ctrl+N nueva, Cmd/Ctrl+W cerrar) con respuesta por pestaña
+            - Colecciones: guarda peticiones reutilizables con nombre (botón ★) y gestionalas en el sidebar
+            - Cancelar petición (botón o Esc) y timeout automático de 60 s
+            - Historial con deduplicación: peticiones idénticas no se duplican
+            - Restaura la última petición al abrir la app
+            - Métodos HEAD y OPTIONS; GET/HEAD sin body
+            - Content-Type: application/json automático para bodies JSON
+            - Panel de respuesta redimensionable con botón copiar
+            - Botón para limpiar la URL y más atajos de teclado
+            - Política de seguridad CSP habilitada
           releaseDraft: false
           prerelease: false

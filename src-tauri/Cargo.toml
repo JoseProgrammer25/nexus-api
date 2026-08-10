@@ -1,6 +1,6 @@
 [package]
 name = "nexus-api"
-version = "0.1.0"
+version = "0.1.2"
 description = "Nexus API: cliente HTTP de escritorio minimalista, libre y de código abierto"
 authors = ["Jose Antonio Becerra Morilla"]
 edition = "2021"

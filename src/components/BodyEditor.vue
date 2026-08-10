@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { prettyPrint } from "../utils/format";
+import type { HttpMethod } from "../types";
+import { prettyPrint, supportsBody } from "../utils/format";
 
 const props = defineProps<{
   text: string;
+  method: HttpMethod;
 }>();
 
 const emit = defineEmits<{
   "update:text": [value: string];
 }>();
+
+const noBody = computed(() => !supportsBody(props.method));
 
 const jsonState = computed<"valid" | "invalid" | "none">(() => {
   const trimmed = props.text.trim();
@@ -71,6 +75,26 @@ function formatJson() {
       >
         Formatear JSON
       </button>
+    </div>
+
+    <div
+      v-if="noBody"
+      class="mb-2 flex shrink-0 items-center gap-2 rounded-lg border border-amber-400/20 bg-amber-400/10 px-3 py-2 text-xs text-amber-300"
+    >
+      <svg
+        class="h-3.5 w-3.5 shrink-0"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 16v-4" />
+        <path d="M12 8h.01" />
+      </svg>
+      {{ props.method }} no envía cuerpo en la petición.
     </div>
 
     <div

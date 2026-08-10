@@ -2,6 +2,7 @@
 import { computed, ref, watch } from "vue";
 import {
   formatBytes,
+  HIGHLIGHT_LIMIT,
   highlightJson,
   statusColor,
   statusDot,
@@ -16,7 +17,9 @@ const props = defineProps<{
 }>();
 
 const view = ref<"body" | "headers">("body");
+const copied = ref(false);
 
+const isLarge = computed(() => (props.body?.length ?? 0) > HIGHLIGHT_LIMIT);
 const highlightedBody = computed(() => highlightJson(props.body ?? ""));
 const headerEntries = computed(() => Object.entries(props.headers ?? {}));
 
@@ -26,10 +29,21 @@ watch(
     view.value = "body";
   },
 );
+
+async function copyBody() {
+  if (!props.body) return;
+  try {
+    await navigator.clipboard.writeText(props.body);
+    copied.value = true;
+    setTimeout(() => (copied.value = false), 1500);
+  } catch {
+    // clipboard no disponible
+  }
+}
 </script>
 
 <template>
-  <section class="flex h-80 shrink-0 flex-col border-t border-edge bg-surface">
+  <section class="flex h-full min-h-0 flex-col border-t border-edge bg-surface">
     <div class="flex shrink-0 items-center gap-3 border-b border-edge px-4 py-2.5">
       <span v-if="props.status !== undefined" class="flex items-center gap-2">
         <span
@@ -51,38 +65,66 @@ watch(
         · {{ formatBytes(props.body.length) }}
       </span>
 
-      <div
-        v-if="props.status !== undefined || headerEntries.length > 0"
-        class="ml-auto flex items-center gap-0.5 rounded-lg bg-surface-2 p-0.5"
-      >
+      <div class="ml-auto flex items-center gap-1.5">
         <button
-          @click="view = 'body'"
-          class="cursor-pointer rounded-md px-3 py-1 text-xs font-medium transition"
+          v-if="props.body"
+          @click="copyBody"
+          :title="copied ? 'Copiado' : 'Copiar respuesta'"
+          class="cursor-pointer rounded-md px-2 py-1 text-xs font-medium transition"
           :class="
-            view === 'body'
-              ? 'bg-surface-3 text-ink'
-              : 'text-ink-3 hover:text-ink-2'
+            copied
+              ? 'bg-emerald-500/15 text-emerald-300'
+              : 'text-ink-3 hover:bg-surface-2 hover:text-ink-2'
           "
         >
-          Body
+          {{ copied ? "Copiado" : "Copiar" }}
         </button>
-        <button
-          @click="view = 'headers'"
-          class="cursor-pointer rounded-md px-3 py-1 text-xs font-medium transition"
-          :class="
-            view === 'headers'
-              ? 'bg-surface-3 text-ink'
-              : 'text-ink-3 hover:text-ink-2'
-          "
+
+        <div
+          v-if="props.status !== undefined || headerEntries.length > 0"
+          class="flex items-center gap-0.5 rounded-lg bg-surface-2 p-0.5"
         >
-          Headers
-        </button>
+          <button
+            @click="view = 'body'"
+            class="cursor-pointer rounded-md px-3 py-1 text-xs font-medium transition"
+            :class="
+              view === 'body'
+                ? 'bg-surface-3 text-ink'
+                : 'text-ink-3 hover:text-ink-2'
+            "
+          >
+            Body
+          </button>
+          <button
+            @click="view = 'headers'"
+            class="cursor-pointer rounded-md px-3 py-1 text-xs font-medium transition"
+            :class="
+              view === 'headers'
+                ? 'bg-surface-3 text-ink'
+                : 'text-ink-3 hover:text-ink-2'
+            "
+          >
+            Headers
+          </button>
+        </div>
       </div>
     </div>
 
     <div class="flex min-h-0 flex-1 flex-col overflow-auto px-4 py-3">
+      <p
+        v-if="view === 'body' && isLarge"
+        class="mb-2 shrink-0 text-[11px] text-ink-3"
+      >
+        Respuesta muy grande: se muestra sin resaltado de sintaxis.
+      </p>
+
       <pre
-        v-if="view === 'body' && props.body"
+        v-if="view === 'body' && props.body && isLarge"
+        class="whitespace-pre-wrap font-mono text-xs leading-relaxed"
+      >{{ props.body }}</pre>
+
+      <pre
+        v-else-if="view === 'body' && props.body"
         class="whitespace-pre-wrap font-mono text-xs leading-relaxed"
         v-html="highlightedBody"
       ></pre>
